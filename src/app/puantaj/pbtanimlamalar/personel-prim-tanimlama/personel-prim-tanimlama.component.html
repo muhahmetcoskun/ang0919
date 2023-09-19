@@ -1,0 +1,159 @@
+<p-toast></p-toast>
+<div class="card">
+    <h5>Personel Arama</h5>
+    <div class="grid formgrid">
+        <div class="col-12 mb-2 lg:col-4 lg:mb-0">
+            <input type="text" pInputText id="tCKimlikNo" [(ngModel)]="personel.TCKimlikNo"
+                placeholder="T.C.Kimlik No." />
+        </div>
+        <div class="col-12 mb-2 lg:col-4 lg:mb-0">
+            <input type="text" pInputText id="adi" [(ngModel)]="personel.Adi" placeholder="Adı" />
+        </div>
+        <div class="col-12 mb-2 lg:col-4 lg:mb-0">
+            <input type="text" pInputText id="soyadi" [(ngModel)]="personel.Soyadi" placeholder="Soyadı" />
+        </div>
+    </div>
+    <div style="margin-top: 20px;" class="grid formgrid">
+        <div class="col-12 mb-2 lg:col-4 lg:mb-0">
+            <button type="button" pButton pRipple icon="pi pi-search" (click)="personelSearch()"
+                class="p-button-warning mr-2" pTooltip="ARA" tooltipPosition="bottom"><span
+                    style="padding-left: 10px;">ARA</span></button>
+        </div>
+        <div class="col-12 mb-2 lg:col-4 lg:mb-0">
+            <button type="button" pButton pRipple icon="pi pi-search" (click)="personelSearchAll()"
+                class="p-button-danger mr-2" pTooltip="TÜM PERSONELLERİ
+                            GETİR" tooltipPosition="bottom"><span style="padding-left: 10px;"> TÜM PERSONELLERİ
+                    GETİR</span></button>
+        </div>
+    </div>
+</div>
+
+
+
+<p-table [style]="{'width':'100% !important','overflow':'auto!important'}" #dt [value]="personels" [columns]="cols"
+    [rows]="10" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" [loading]="loading"
+    [globalFilterFields]="['tcKimlikNo','personelD.adi','personelD.soyadi','soyadi','status']"
+    currentPageReportTemplate="{totalRecords} kayıttan {first} ile {last} arasındaki kayıt gösteriliyor."
+    [(selection)]="selectedpersonels" selectionMode="multiple" [rowHover]="true" dataKey="personelKimlikId">
+    <ng-template pTemplate="caption">
+        <p-progressSpinner *ngIf="loading" styleClass="w-4rem h-4rem" strokeWidth="8" fill="var(--surface-ground)"
+            animationDuration=".5s"></p-progressSpinner>
+
+        <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+            <h5 class="m-0"> <button [disabled]="selectedpersonels==''" type="button" pButton pRipple icon="pi pi-plus"
+                    (click)="editprimTuruToplu()" class="p-button-primary mr-2" pTooltip="Seçilenlere Prim Ata
+                            GETİR" tooltipPosition="bottom"><span>Seçilenlere Prim Ata</span></button></h5>
+            <span class="block mt-2 md:mt-0 p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Ara..."
+                    class="w-full sm:w-auto" />
+            </span>
+        </div>
+    </ng-template>
+
+
+    <ng-template pTemplate="header">
+        <tr>
+            <th style="width: 3rem">
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th [hidden]="true">Id <p-sortIcon field="personelKimlikId"></p-sortIcon></th>
+            <th pSortableColumn="tcKimlikNo">TCKN <p-sortIcon field="tcKimlikNo"></p-sortIcon></th>
+
+            <th pSortableColumn="adi">Adı <p-sortIcon field="adi"></p-sortIcon></th>
+            <th pSortableColumn="soyadi">Soyadı <p-sortIcon field="soyadi"></p-sortIcon></th>
+            <th class="islemButtonWitdh">İşlem</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-personelD let-i="rowIndex">
+        <tr>
+            <td>
+                <p-tableCheckbox [value]="personelD"></p-tableCheckbox>
+            </td>
+            <td [hidden]="true" style="width:14%; min-width:10rem;"><span class="p-column-title">Id</span>
+                {{ personelD.personelKimlikId}}
+            </td>
+            <td style="width:40%; min-width:10rem;">
+                <span class="p-column-title">T.C. Kimlik No.</span>
+                {{personelD.tcKimlikNo }}
+            </td>
+            <td style="width:40%; min-width:10rem;">
+                <span class="p-column-title">Adı</span>
+                {{personelD.adi }}
+            </td>
+            <td style="width:40%; min-width:10rem;">
+                <span class="p-column-title">Soyadı</span>
+                {{personelD.soyadi }}
+            </td>
+
+
+            <td style="width:10%; min-width:8rem;">
+                <div class="flex">
+                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
+                        (click)="editprimTuru(personelD)" pTooltip="Prim Düzenleme"></button>
+
+
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+
+
+
+
+
+<p-dialog [(visible)]="primTuruDialog" [style]="{width: '750px'}" header="Prim Düzenleme" [modal]="true"
+    class="p-fluid">
+    <ng-template pTemplate="content">
+        <p-table [style]="{'width':'100% !important','overflow':'auto!important'}" #dt [value]="primTuruList"
+            [columns]="cols" [rows]="14" [paginator]="false" [(selection)]="selectedprimTuruList"
+            selectionMode="multiple" [rowHover]="true" dataKey="id">
+
+
+            <ng-template pTemplate="header">
+                <tr>
+
+                    <th [hidden]="true">Id <p-sortIcon field="id"></p-sortIcon></th>
+                    <th>Prim Türü </th>
+                    <th>Başlangıç Tarihi </th>
+                    <th>Bitiş Tarihi </th>
+
+                    <th>İşlem </th>
+
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-primTuruD let-i="rowIndex">
+                <tr>
+
+                    <td [hidden]="true" style="width:14%; min-width:10rem;"><span class="p-column-title">Id</span>
+                        {{ primTuruD.id}}
+                    </td>
+                    <td style="width:30%; min-width:10rem;">
+                        {{primTuruD.adi }}
+                    </td>
+                    <td style="width:30%;">
+                        <p-calendar dataType="string" id="tarih"
+                            [(ngModel)]="primTuruD.personelPrim.baslangicTarihi"></p-calendar>
+                    </td>
+                    <td style="width:30%;">
+                        <p-calendar dataType="string" id="tarih"
+                            [(ngModel)]="primTuruD.personelPrim.bitisTarihi"></p-calendar>
+                    </td>
+                    <td style="width:10%;">
+                        <button type="button" pButton pRipple icon="pi pi-plus" (click)="primEkle()"
+                            class="p-button-primary mr-2" pTooltip="Ekle"></button>
+
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Çık" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Kaydet" icon="pi pi-check" class="p-button-text"
+            (click)="saveprimTuru()"></button>
+    </ng-template>
+</p-dialog>
